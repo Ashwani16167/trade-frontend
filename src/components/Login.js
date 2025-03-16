@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';  // Import Link for navigation
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
 
 function Login() {
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useContext(AuthContext); // Access login function from context
+    const { login } = useContext(AuthContext);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,9 +24,9 @@ function Login() {
             });
 
             if (response.ok) {
-                const data = await response.json(); // Retrieve data from the response
-                localStorage.setItem('token', data.token); // Save token in localStorage
-                login(formData.username); // Set username in context
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                login(formData.username);
                 navigate('/');
             } else {
                 const errorData = await response.json();
@@ -39,17 +39,41 @@ function Login() {
     };
 
     return (
-        <div className="login-content text-center p-4">
-            <h2 className="mb-3">Login</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="username" className="form-control mb-3" placeholder="Username" value={formData.username} onChange={handleChange} required />
-                <input type="password" name="password" className="form-control mb-3" placeholder="Password" value={formData.password} onChange={handleChange} required />
-                {error && <p className="text-danger">{error}</p>}
-                <button type="submit" className="btn btn-primary mb-3">Login</button>
-            </form>
-            <Link to="/forgot-password" className="text-primary">Forgot Password?</Link> {/* Add Forgot Password link */}
+        <div 
+            className="d-flex justify-content-center align-items-center" 
+            style={{ height: 'calc(100vh - 56px)', marginTop: '0' }}
+        >
+            <div className="card p-4 shadow" style={{ width: '350px' }}>
+                <h2 className="text-center mb-4">Login</h2>
+                <form onSubmit={handleSubmit}>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        className="form-control mb-3" 
+                        placeholder="Username" 
+                        value={formData.username} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                    <input 
+                        type="password" 
+                        name="password" 
+                        className="form-control mb-3" 
+                        placeholder="Password" 
+                        value={formData.password} 
+                        onChange={handleChange} 
+                        required 
+                    />
+                    {error && <p className="text-danger">{error}</p>}
+                    <button type="submit" className="btn btn-primary w-100">Login</button>
+                </form>
+                <div className="text-center mt-3">
+                    <Link to="/forgot-password" className="text-primary">Forgot Password?</Link>
+                </div>
+            </div>
         </div>
     );
+    
 }
 
 export default Login;

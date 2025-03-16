@@ -13,14 +13,8 @@ function ForgotPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Get CSRF token and auth token (stored in localStorage after login)
+        // Get CSRF token
         const csrfToken = getCsrfToken();
-        const authToken = localStorage.getItem('auth_token');  // Assuming auth token is stored in localStorage
-
-        if (!authToken) {
-            setMessage('You must be logged in to perform this action.');
-            return;
-        }
 
         try {
             const response = await fetch('http://127.0.0.1:8000/api/password_reset/', {
@@ -28,7 +22,6 @@ function ForgotPassword() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken,  // Include CSRF token
-                    'Authorization': `Token ${authToken}`,  // Include Authorization token
                 },
                 body: JSON.stringify({ email }),
                 credentials: 'include',  // Send cookies with request

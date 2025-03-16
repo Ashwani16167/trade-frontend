@@ -1,9 +1,15 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
 
 function Navbar() {
     const { username, logout } = useContext(AuthContext);
+    const navigate = useNavigate(); // To redirect after logout
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login'); // Redirect to login after logout
+    };
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light mx-3">
@@ -12,9 +18,16 @@ function Navbar() {
                 <span className="navbar-toggler-icon"></span>
             </button>
             <div className="collapse navbar-collapse" id="navbarNav">
-                {username ? (
+                <ul className="navbar-nav me-auto"> {/* Non-authenticated links */}
+                    <li className="nav-item">
+                        <Link className="nav-link" to="/">Home</Link>
+                    </li>
+                    {/* Add other common links if needed */}
+                </ul>
+
+                {username && (
                     <div className="d-flex justify-content-center w-100"> {/* Center nav links when user is logged in */}
-                        <ul className="navbar-nav"> 
+                        <ul className="navbar-nav">
                             <li className="nav-item">
                                 <Link className="nav-link" to="/dashboard">Dashboard</Link>
                             </li>
@@ -32,12 +45,13 @@ function Navbar() {
                             </li>
                         </ul>
                     </div>
-                ) : null}
+                )}
+
                 <div className="d-flex ms-auto"> {/* Align Login/Sign Up to the right */}
                     {username ? (
                         <div className="d-flex align-items-center">
                             <span className="me-3">Hello, {username}!</span>
-                            <button className="btn btn-outline-secondary" onClick={logout}>Logout</button>
+                            <button className="btn btn-outline-secondary" onClick={handleLogout}>Logout</button>
                         </div>
                     ) : (
                         <>

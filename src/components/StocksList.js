@@ -1,60 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
-function StocksList() {
+function StocksList({ watchlists }) {
     const [stocks, setStocks] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [query, setQuery] = useState('');
 
     useEffect(() => {
-        fetchStocks();
-    }, []);
+        if (query) {
+            fetchStocks();
+        }
+    }, [query]);
 
     const fetchStocks = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/stocks/');
+            const response = await axios.get(`http://localhost:8000/api/stocks/?q=${query}`);
             setStocks(response.data);
         } catch (error) {
-            console.error("Error fetching stocks:", error);
+            console.error('Error fetching stocks:', error);
         }
     };
 
-    const addToWatchlist = async (stockId) => {
+    const addToWatchlist = async (stockId, watchlistId) => {
         try {
-            await axios.post('/api/watchlist/add/', { stock_id: stockId });
-            alert("Stock added to watchlist!");
+            const response = await axios.post('http://localhost:8000/api/stocks/', {
+                stock_id: stockId,
+                // watchlist_id: watchlistId,
+            });
+            console.log('Stock added:', response.data);
+            alert('Stock added successfully' + watchlists);
+
         } catch (error) {
-            console.error("Error adding to watchlist:", error);
-            alert("Failed to add stock to watchlist.");
+            console.error('Error adding to watchlist:', error);
+            alert(error.response?.data?.error || 'Failed to add stock' + stockId)
         }
     };
-
-    const filteredStocks = stocks.filter(stock =>
-        stock.stock_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div>
+            <h4>Watchlists</h4>
             <input
                 type="text"
                 className="form-control mb-3"
-                placeholder="Search Stocks"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search stocks..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
             />
-            <ul className="list-group">
-                {filteredStocks.slice(0, 10).map(stock => (
-                    <li key={stock.stock_code} className="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{stock.stock_name}</span>
-                        <span className="ms-auto me-3">{stock.stock_price}</span>
-                        <button 
-                            className="btn btn-primary btn-sm" 
-                            onClick={() => addToWatchlist(stock.stock_code)}>
+            {stocks.map(stock => (
+                <div key={stock.id} className="d-flex justify-content-between align-items-center">
+                    <span>{stock.name} ({stock.symbol})</span>
+                    <button
+                        
+                            onClick={() => addToWatchlist(stock.id)}
+                            className="btn btn-primary btn-sm"
+                        >
                             Add to Watchlist
                         </button>
-                    </li>
-                ))}
-            </ul>
+                    {watchlists.map(watchlist => (
+                        <button
+                            key={watchlist.id}
+                            onClick={() => addToWatchlist(stock.id, watchlist.id)}
+                            className="btn btn-primary btn-sm"
+                        >
+                            Add to {watchlist.name}
+                        </button>
+                    ))}
+                </div>
+            ))}
         </div>
     );
 }
